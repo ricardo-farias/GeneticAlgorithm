@@ -28,11 +28,11 @@ object Main {
             grid.add(rect, x, y)
           }
           case -1 => {
-            rect.setFill(Color.Green)
+            rect.setFill(Color.Blue)
             grid.add(rect, x, y)
           }
           case _ => {
-            rect.setFill(Board.getObjectAt(x, y).getColor())
+            rect.setFill(Board.getObjectAt(x, y).getColor)
             grid.add(rect, x, y)
           }
         }
@@ -66,7 +66,7 @@ object Main {
           var continue = true
 
           border.top = startButton
-          border.left = stopButton
+          border.bottom = stopButton
           border.center = grid
           Board.generate()
 
@@ -75,10 +75,14 @@ object Main {
 
 
           var status = true
-
+          var lastTime = 0L
 
           val timer = AnimationTimer {time =>
+            if (lastTime > 0) {
               simulation(grid)
+              Thread.sleep(100)
+            }
+            lastTime = time
           }
 
           startButton.onMouseClicked = (me : MouseEvent) => {

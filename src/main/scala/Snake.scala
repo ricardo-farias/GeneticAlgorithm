@@ -7,50 +7,71 @@ import scala.util.Random
 
 class Snake(identifier : Int, x : Int, y : Int) extends Rectangle{
 
-  var x_pos = x
-  var y_pos = y
+  var x_pos: Int = x
+  var y_pos: Int = y
 
+  var timesEaten : Int = 0
   var vision : Int = 1
   var health : Double = 100
   var hunger : Double = 0
+  var numberOfMoves : Int = 1
+
+  def fitness : Double = {
+    Math.abs(timesEaten * health * hunger)/numberOfMoves
+  }
+  var chromosome : List[Double] = List(health, hunger, vision)
 
 
-  def getColor() : Color = {
-    if (health == 100) Color.Green
-    else if (health < 50 && health > 25) Color.Orange
+  def getColor: Color = {
+    if (hunger <= .25) Color.Green
+    else if (hunger > .25 && hunger < .75) Color.Yellow
+    else if (hunger > .75 && hunger < 1) Color.Orange
     else Color.Red
   }
 
-  def getUniqueIdentifier(): Int = identifier
+  def getUniqueIdentifier: Int = identifier
 
-  def dead(): Boolean = hasFallen() || health == 0
+  def dead(): Boolean = (hasFallen || health == 0)
 
-  def getX(): Int = x_pos
+  def getX: Int = x_pos
 
-  def getY(): Int = y_pos
+  def getY: Int = y_pos
 
-  def hasFallen(): Boolean = (x_pos < 0 || x_pos > Constants.MAX_BOARD_WIDTH-1) || (y_pos < 0 || y_pos > Constants.MAX_BOARD_HEIGHT-1)
+  def hasFallen: Boolean = (x_pos < 0 || x_pos > Constants.MAX_BOARD_WIDTH) || (y_pos < 0 || y_pos > Constants.MAX_BOARD_HEIGHT)
 
-  def eat(food: Food): Unit = ???
+  def eat(): Unit = {
+    timesEaten += 1
+    health += 20
+    hunger -= 40
+  }
 
 
   def move(): Unit = {
     val surroundings = lookAround()
     val decision = makeDecision(surroundings)
-    if (decision._1 != x_pos || decision._2 != y_pos && hunger < 1) hunger += .09
-    else health -= 5
+    if ((decision._1 != x_pos || decision._2 != y_pos) && hunger < 1) {
+      hunger = hunger + Constants.HUNGER_GROWTH
+    }
+    else if ((decision._1 != x_pos || decision._2 != y_pos) && hunger >= 1) {
+      health = health - Constants.HUNGER_DAMAGE
+    }
     x_pos = decision._1
     y_pos = decision._2
-    println(f"Snake Health: ${health}, Hunger: ${hunger}, Move X: ${x_pos}, Move Y: ${y_pos}")
+    numberOfMoves += 1
+    println(f"Snake Health: ${health}, Hunger: ${hunger}, Move X: ${x_pos}, Move Y: ${y_pos}, Fitness: ${fitness}")
   }
 
   def makeDecision(surroundings : scala.collection.mutable.Map[Int, List[(Int, Int)]]) : (Int, Int) = {
     val ran = new Random
-    if (surroundings.get(-1).nonEmpty || (health * hunger) > .5){
-        surroundings.get(-1).getOrElse(List((x_pos, y_pos)))(0)
+    if (surroundings.keys.exists(k => k == -1)){
+      val decision = surroundings.get(-1).get(0)
+      eat()
+      decision
     }else {
-      val length = surroundings.get(0).get.size
-      surroundings.get(0).getOrElse(List((x_pos, y_pos)))(ran.nextInt(length))
+      val length = surroundings.get(0).size
+      val index = ran.nextInt(length+1)
+      val decision = surroundings(0)(index)
+      decision
     }
   }
 
@@ -59,19 +80,19 @@ class Snake(identifier : Int, x : Int, y : Int) extends Rectangle{
     for (i <- 1 to vision){
       if (x_pos + i < Constants.MAX_BOARD_WIDTH){                         // Right
         val id = Board.getIdentifierAt(x_pos + i, y_pos)
-        surroundings(id) = surroundings.get(id).getOrElse(List()).::((x_pos + i, y_pos))
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos + i, y_pos))
       }
-      if (x_pos - i > 0){                                            // Left
+      if (x_pos - i >= 0){                                            // Left
         val id = Board.getIdentifierAt(x_pos - i, y_pos)
-        surroundings(id) = surroundings.get(id).getOrElse(List()).::((x_pos - i, y_pos))
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos - i, y_pos))
       }
       if (y_pos + i < Constants.MAX_BOARD_HEIGHT){                   // Up
         val id = Board.getIdentifierAt(x_pos, y_pos + i)
-        surroundings(id) = surroundings.get(id).getOrElse(List()).::((x_pos, y_pos + i))
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos, y_pos + i))
       }
-      if (y_pos - i > 0) {                                          // Down
+      if (y_pos - i >= 0) {                                          // Down
         val id = Board.getIdentifierAt(x_pos, y_pos - i)
-        surroundings(id) = surroundings.get(id).getOrElse(List()).::((x_pos, y_pos - i))
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos, y_pos - i))
       }
     }
     surroundings

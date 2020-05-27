@@ -6,7 +6,7 @@ object Board{
   val EMPTY = 0
 
 
-  private var population = scala.collection.mutable.Map[Snake, (Int, Int)]()
+  private val population = scala.collection.mutable.Map[Snake, (Int, Int)]()
 
   def generate(): Unit = {
     for (x <- 0 until Constants.MAX_BOARD_WIDTH){
@@ -14,18 +14,20 @@ object Board{
         board(x)(y) = EMPTY
       }
     }
-
     for (i <- 1 until Constants.POPULATION_SIZE){
       val position = placeObject(i)
       val snake = new Snake(i, position._1, position._2)
       population(snake) = (position._1, position._2)
+    }
+    for (i <- 1 until Constants.MAX_FOOD_AMOUNT){
+      placeObject(-1)
     }
   }
 
   def isOpen(x : Int, y : Int): Boolean = board(x)(y) == 0
 
 
-  def getObjectAt(x : Int, y : Int) : Snake = population.keys.find(snake => (snake.getUniqueIdentifier() == board(x)(y))).getOrElse(new Snake(-1 , -1, -1))
+  def getObjectAt(x : Int, y : Int) : Snake = population.keys.find(snake => (snake.getUniqueIdentifier == board(x)(y))).getOrElse(new Snake(-1 , -1, -1))
 
   def getIdentifierAt(x : Int, y : Int) : Int = board(x)(y)
 
@@ -49,12 +51,16 @@ object Board{
   }
 
   def updateSnakes(): Unit = {
+    population.keys.foreach(key => if (key.dead()) {
+      updateBoard(0, (key.getX, key.getY), (key.getX, key.getY))
+      population.remove(key)
+    })
     population.keys.foreach(key => key.move())
     population.keys.foreach(key => {
       val old_position = population.get(key).getOrElse(-1, -1)
-      val new_position = (key.getX(), key.getY())
+      val new_position = (key.getX, key.getY)
       population.update(key, new_position)
-      val id = key.getUniqueIdentifier()
+      val id = key.getUniqueIdentifier
       updateBoard(id, old_position, new_position)
     })
   }
