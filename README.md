@@ -41,15 +41,15 @@ Functionality:
 
 ### Equations
 
-Health = H
-Hunger = Hu
-Food Eaten = FE
-Number of Surrounding Snakes = NS
-Number of Moves = NM
-Constant = c
-Fear = F
-Toxin = T
-Vision = V
+- Health = H
+- Hunger = Hu
+- Food Eaten = FE
+- Number of Surrounding Snakes = NS
+- Number of Moves = NM
+- Constant = c
+- Fear = F
+- Toxin = T
+- Vision = V
 
 Attribute | Equation
 ----------|----------
