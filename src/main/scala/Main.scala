@@ -4,12 +4,12 @@ import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.Button
-import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
-import scalafx.scene.layout.{BorderPane, GridPane}
+import scalafx.scene.control.{Button, Label}
+import scalafx.scene.input.{MouseEvent}
+import scalafx.scene.layout.{BorderPane, GridPane, HBox}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
-import src.main.scala.{Board, Constants, Snake}
+import src.main.scala.{Board, Constants}
 
 object Main {
 
@@ -63,10 +63,19 @@ object Main {
           val grid = new GridPane()
           val startButton = new Button("Start Simulation")
           val stopButton = new Button("Stop Simulation")
+
+
+          val text = new Label("Score: ")
+          var score = new Label("0")
           var continue = true
 
-          border.top = startButton
-          border.bottom = stopButton
+
+          val buttonLayout = new HBox{
+            children = List(startButton, stopButton, text, score)
+          }
+
+          border.top = buttonLayout
+
           border.center = grid
           Board.generate()
 

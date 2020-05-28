@@ -42,7 +42,7 @@ class Snake(identifier : Int, x : Int, y : Int) extends Rectangle{
   def eat(): Unit = {
     timesEaten += 1
     health += 20
-    hunger -= 40
+    hunger -= 1
   }
 
 
@@ -78,21 +78,37 @@ class Snake(identifier : Int, x : Int, y : Int) extends Rectangle{
   def lookAround() : scala.collection.mutable.Map[Int, List[(Int, Int)]] = {
     val surroundings = scala.collection.mutable.Map[Int, List[(Int, Int)]]()
     for (i <- 1 to vision){
-      if (x_pos + i < Constants.MAX_BOARD_WIDTH){                         // Right
+      if (x_pos + i < Constants.MAX_BOARD_WIDTH){                                            // Right
         val id = Board.getIdentifierAt(x_pos + i, y_pos)
         surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos + i, y_pos))
       }
-      if (x_pos - i >= 0){                                            // Left
+      if (x_pos - i >= 0){                                                                  // Left
         val id = Board.getIdentifierAt(x_pos - i, y_pos)
         surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos - i, y_pos))
       }
-      if (y_pos + i < Constants.MAX_BOARD_HEIGHT){                   // Up
+      if (y_pos + i < Constants.MAX_BOARD_HEIGHT){                                          // Up
         val id = Board.getIdentifierAt(x_pos, y_pos + i)
         surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos, y_pos + i))
       }
-      if (y_pos - i >= 0) {                                          // Down
+      if (y_pos - i >= 0) {                                                                 // Down
         val id = Board.getIdentifierAt(x_pos, y_pos - i)
         surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos, y_pos - i))
+      }
+      if (x_pos + i < Constants.MAX_BOARD_WIDTH && y_pos + i < Constants.MAX_BOARD_HEIGHT){ // Up Right (Diagonal)
+        val id = Board.getIdentifierAt(x_pos + i, y_pos + i )
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos + i, y_pos + i))
+      }
+      if (x_pos - i >= 0 && y_pos + i < Constants.MAX_BOARD_HEIGHT) {                       // Up Left (Diagonal)
+        val id = Board.getIdentifierAt(x_pos - i, y_pos + i)
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos - i, y_pos + i))
+      }
+      if (x_pos + i < Constants.MAX_BOARD_HEIGHT && y_pos - i >= 0){                        // Down Right (Diagonal)
+        val id = Board.getIdentifierAt(x_pos + i, y_pos - i)
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos + i, y_pos - i))
+      }
+      if (x_pos - i >= 0 && y_pos - i >= 0){                                                // Down Left (Diagonal)
+        val id = Board.getIdentifierAt(x_pos - i, y_pos - i)
+        surroundings(id) = surroundings.getOrElse(id, List()).::((x_pos - i, y_pos - i))
       }
     }
     surroundings
